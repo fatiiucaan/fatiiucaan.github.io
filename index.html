@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Unifyboss Rhino Plugin</title>
+<title>UnifyBoss Rhino</title>
 <style>
   :root{
     --size: 88px;
@@ -122,7 +122,6 @@
     display: block;
     object-fit: contain;
     pointer-events: none;
-    filter: none;
   }
 
   .icon::after{
@@ -143,7 +142,7 @@
     box-shadow:
       inset 0 8px 22px rgba(0,0,0,.28),
             0 10px 26px rgba(0,0,0,.28),
-            0 0 0 3px color-mix(in srgb, var(--brand) 20%, transparent);
+            0 0 0 3px color-mix(in srgb, var(--brand) calc(var(--ring-alpha) * 100%), transparent);
     background: color-mix(in srgb, var(--brand) 9%, var(--card));
   }
   .icon:hover::after,
@@ -203,6 +202,14 @@
   }
   .blob.tail{ width: 14px; height: 14px; opacity: .85; }
   .blob.dot { width: 10px; height: 10px; opacity: .85; }
+
+  /* Brand colors for effects */
+  .facebook { --brand: #1877F2; }
+  .youtube  { --brand: #FF0000; }
+  .instagram{ --brand: #E4405F; }
+  .wechat   { --brand: #07C160; }
+  .whatsapp { --brand: #25D366; }
+  .qq       { --brand: #1296DB; }
 </style>
 </head>
 <body>
@@ -210,21 +217,45 @@
 
   <main class="wrap">
     <h1>Sosyal Platform Bağlantıları</h1>
-    <p class="note">bilibili kaldırıldı. Grid kesişim noktaları imleç yakınında yanıp söner; sürekli ışık yolları ve liquid cursor aktif.</p>
+    <p class="note">Linkler bağlandı. Logolar <strong>renkli</strong> ve tüm efektler logo rengine göre tepki veriyor. WeChat için tıklayınca ID panoya kopyalanır; QQ tıklayınca sohbet sayfası açılır.</p>
 
     <ul class="socials">
-      <li><a class="icon facebook" href="https://facebook.com/yourpage" target="_blank" rel="noopener" aria-label="Facebook">
-        <img class="logo" alt="Facebook logosu" src="https://cdn.simpleicons.org/facebook/FFFFFF" /></a></li>
-      <li><a class="icon youtube" href="https://youtube.com/@yourchannel" target="_blank" rel="noopener" aria-label="YouTube">
-        <img class="logo" alt="YouTube logosu" src="https://cdn.simpleicons.org/youtube/FFFFFF" /></a></li>
-      <li><a class="icon instagram" href="https://instagram.com/yourprofile" target="_blank" rel="noopener" aria-label="Instagram">
-        <img class="logo" alt="Instagram logosu" src="https://cdn.simpleicons.org/instagram/FFFFFF" /></a></li>
-      <li><a class="icon wechat" href="https://wechat.com/" target="_blank" rel="noopener" aria-label="WeChat">
-        <img class="logo" alt="WeChat logosu" src="https://cdn.simpleicons.org/wechat/FFFFFF" /></a></li>
-      <li><a class="icon whatsapp" href="https://wa.me/905xxxxxxxxx" target="_blank" rel="noopener" aria-label="WhatsApp">
-        <img class="logo" alt="WhatsApp logosu" src="https://cdn.simpleicons.org/whatsapp/FFFFFF" /></a></li>
-      <li><a class="icon qq" href="https://im.qq.com/" target="_blank" rel="noopener" aria-label="QQ">
-        <img class="logo" alt="QQ logosu" src="https://cdn.simpleicons.org/qq/FFFFFF" /></a></li>
+      <li>
+        <a class="icon facebook" href="https://www.facebook.com/profile.php?id=61581085752730" target="_blank" rel="noopener" aria-label="Facebook">
+          <img class="logo" alt="Facebook logosu" src="https://cdn.simpleicons.org/facebook/1877F2" />
+        </a>
+      </li>
+
+      <li>
+        <a class="icon instagram" href="https://www.instagram.com/unifyboss.software/#" target="_blank" rel="noopener" aria-label="Instagram">
+          <img class="logo" alt="Instagram logosu" src="https://cdn.simpleicons.org/instagram/E4405F" />
+        </a>
+      </li>
+
+      <li>
+        <a class="icon youtube" href="https://www.youtube.com/@Unifyboss.software" target="_blank" rel="noopener" aria-label="YouTube">
+          <img class="logo" alt="YouTube logosu" src="https://cdn.simpleicons.org/youtube/FF0000" />
+        </a>
+      </li>
+
+      <li>
+        <!-- WeChat: copy ID -->
+        <a class="icon wechat" href="#" data-copy="wxid_12ryn7sxvn8o22" aria-label="WeChat (ID kopyala)">
+          <img class="logo" alt="WeChat logosu" src="https://cdn.simpleicons.org/wechat/07C160" />
+        </a>
+      </li>
+
+      <li>
+        <a class="icon whatsapp" href="https://wa.me/905368536899" target="_blank" rel="noopener" aria-label="WhatsApp">
+          <img class="logo" alt="WhatsApp logosu" src="https://cdn.simpleicons.org/whatsapp/25D366" />
+        </a>
+      </li>
+
+      <li>
+        <a class="icon qq" href="https://wpa.qq.com/msgrd?v=3&uin=3907687536&site=qq&menu=yes" target="_blank" rel="noopener" aria-label="QQ">
+          <img class="logo" alt="QQ logosu" src="https://cdn.simpleicons.org/qq/1296DB" />
+        </a>
+      </li>
     </ul>
   </main>
 
@@ -235,6 +266,9 @@
       <div class="blob dot"></div>
     </div>
   </div>
+
+  <!-- Toast -->
+  <div id="toast" style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:rgba(0,0,0,.72);color:#fff;padding:10px 14px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:10000;">Kopyalandı</div>
 
   <svg width="0" height="0" style="position:fixed">
     <filter id="goo">
@@ -250,6 +284,7 @@
 
 <script>
 (function(){
+  /* ======= Grid: light paths + blinking points near cursor ======= */
   const GRID = 30;
   const INFLUENCE_RADIUS = 60;
   const POINT_R = 1.2;
@@ -356,7 +391,7 @@
       const alpha = POINT_BASE_ALPHA + (POINT_PULSE_ALPHA * influence * pulse);
       ctx.fillStyle = `rgba(180, 205, 255, ${alpha})`;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, 1.2, 0, Math.PI*2);
+      ctx.arc(p.x, p.y, {POINT_R}, 0, Math.PI*2);
       ctx.fill();
     }
 
@@ -405,6 +440,7 @@
     }
   }
 
+  // dblclick: spawn local cluster
   document.addEventListener('dblclick', (e)=>{
     if(!e.target.closest('.icon')){
       const gx = Math.round(e.clientX/GRID)*GRID;
@@ -464,6 +500,34 @@
     document.addEventListener('mouseleave', ()=> goo.style.opacity = '0');
     document.addEventListener('mouseenter', ()=> goo.style.opacity = '1');
   }
+
+  /* ======= Copy WeChat ID with toast ======= */
+  const toast = document.getElementById('toast');
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=> toast.style.opacity = '0', 1400);
+  }
+
+  document.querySelectorAll('[data-copy]').forEach(el=>{
+    el.addEventListener('click', async (e)=>{
+      e.preventDefault();
+      const txt = el.getAttribute('data-copy');
+      try{
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          await navigator.clipboard.writeText(txt);
+        }else{
+          const ta = document.createElement('textarea');
+          ta.value = txt; document.body.appendChild(ta); ta.select();
+          document.execCommand('copy'); ta.remove();
+        }
+        showToast('WeChat ID kopyalandı: ' + txt);
+      }catch(err){
+        showToast('Kopyalanamadı');
+      }
+    });
+  });
 })();
 </script>
 </body>
