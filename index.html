@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>UnifyBoss Rhino</title>
+<title>Sosyal Bağlantılar – Dark + Grid + Işık + QR Balonu (Renkli) + Telif</title>
 <style>
   :root{
     --size: 88px;
@@ -20,6 +20,10 @@
     --glow-op: .70;
 
     --cursor-color: rgba(255,255,255,.22);
+
+    /* QR bubble */
+    --qr-brand: #5aa9ff;
+    --qr-bg: #f5f9ff;
   }
 
   * { box-sizing: border-box; }
@@ -46,7 +50,7 @@
       var(--bg);
     display: grid;
     place-items: center;
-    padding: 32px 18px 48px;
+    padding: 32px 18px 100px;
     cursor: none;
   }
 
@@ -90,6 +94,7 @@
 
   .icon{
     --brand: #888;
+    --label: "Link";
     position: relative;
     width: var(--size);
     height: var(--size);
@@ -204,61 +209,154 @@
   .blob.dot { width: 10px; height: 10px; opacity: .85; }
 
   /* Brand colors for effects */
-  .facebook { --brand: #1877F2; }
-  .youtube  { --brand: #FF0000; }
-  .instagram{ --brand: #E4405F; }
-  .wechat   { --brand: #07C160; }
-  .whatsapp { --brand: #25D366; }
-  .qq       { --brand: #1296DB; }
+  .facebook { --brand: #1877F2; --label: "Facebook"; }
+  .youtube  { --brand: #FF0000; --label: "YouTube";  }
+  .instagram{ --brand: #E4405F; --label: "Instagram"; }
+  .wechat   { --brand: #07C160; --label: "WeChat"; }
+  .whatsapp { --brand: #25D366; --label: "WhatsApp"; }
+  .qq       { --brand: #1296DB; --label: "QQ"; }
+
+  /* ====== QR Bubble ====== */
+  .qr-bubble{
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%) translateY(10px) scale(.96);
+    opacity: 0;
+    transition: transform .28s ease, opacity .28s ease, filter .28s ease;
+    z-index: 9998;
+    pointer-events: none;
+    filter: drop-shadow(0 18px 30px rgba(0,0,0,.45));
+  }
+  .qr-bubble.show{
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  .qr-bubble .goo-wrap{
+    position: relative;
+    width: min(88vw, 360px);
+    height: 270px;
+    margin: 0 auto;
+    filter: url(#goo);
+  }
+  .qr-bubble .blob-bg{
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, color-mix(in srgb, var(--qr-brand) 95%, #ffffff 5%) 0%, rgba(255,255,255,.05) 65%, transparent 72%);
+    opacity: .35;
+    mix-blend-mode: screen;
+  }
+  .qr-bubble .b1{ width: 160px; height: 160px; left: 14%; bottom: 18%; animation: float1 9s ease-in-out infinite; }
+  .qr-bubble .b2{ width: 130px; height: 130px; right: 12%; bottom: 16%; animation: float2 11s ease-in-out infinite; }
+  .qr-bubble .b3{ width: 110px; height: 110px; left: 38%; top: 8%;  animation: float3 13s ease-in-out infinite; }
+
+  @keyframes float1 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  @keyframes float2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-8px,-6px)} }
+  @keyframes float3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(10px,-8px)} }
+
+  .qr-card{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 230px;
+    padding: 12px 12px 16px;
+    border-radius: 18px;
+    background: rgba(12,16,24,.92);
+    outline: 1px solid color-mix(in srgb, var(--qr-brand) 50%, transparent);
+    box-shadow:
+      0 0 0 6px color-mix(in srgb, var(--qr-brand) 14%, transparent),
+      0 16px 36px rgba(0,0,0,.55),
+      inset 0 0 34px color-mix(in srgb, var(--qr-brand) 10%, transparent);
+    display: grid;
+    gap: 10px;
+    justify-items: center;
+  }
+  .qr-title{
+    font-size: 13px;
+    letter-spacing: .3px;
+    opacity: .9;
+  }
+  .qr-box{
+    width: 200px; height: 200px;
+    background: var(--qr-bg);
+    border-radius: 12px;
+    display: grid; place-items: center;
+    overflow: hidden;
+    box-shadow: 0 0 0 2px var(--qr-bg), 0 0 0 8px color-mix(in srgb, var(--qr-brand) 20%, transparent);
+  }
+  .qr-box img{ display:block; width: 196px; height: 196px; image-rendering: pixelated; }
+
+  /* ====== Footer copyright ====== */
+  .site-footer{
+    position: fixed;
+    left: 50%;
+    bottom: 6px;
+    transform: translateX(-50%);
+    z-index: 9997; /* below QR bubble (9998) and cursor (9999) */
+    font-size: 12px;
+    color: rgba(205,217,229,.75);
+    letter-spacing: .2px;
+    user-select: none;
+    text-align: center;
+    white-space: nowrap;
+    pointer-events: none; /* purely informational */
+  }
+  .site-footer .brand{
+    color: var(--fg);
+    font-weight: 600;
+    pointer-events: auto;
+  }
 </style>
 </head>
 <body>
   <canvas id="lightgrid" aria-hidden="true"></canvas>
 
   <main class="wrap">
-    <h1>Welcome</h1>
-    <p class="note"></p>
+    <h1>Sosyal Platform Bağlantıları</h1>
+    <p class="note">Bir ikonun üzerine gelince, altta markanın renginde <strong>liquid balon</strong> + <strong>renkli QR</strong> görünür.</p>
 
     <ul class="socials">
       <li>
-        <a class="icon facebook" href="https://www.facebook.com/profile.php?id=61581085752730" target="_blank" rel="noopener" aria-label="Facebook">
+        <a class="icon facebook" data-qr="https://www.facebook.com/profile.php?id=61581085752730" href="https://www.facebook.com/profile.php?id=61581085752730" target="_blank" rel="noopener" aria-label="Facebook">
           <img class="logo" alt="Facebook logosu" src="https://cdn.simpleicons.org/facebook/1877F2" />
         </a>
       </li>
 
       <li>
-        <a class="icon instagram" href="https://www.instagram.com/unifyboss.software/#" target="_blank" rel="noopener" aria-label="Instagram">
+        <a class="icon instagram" data-qr="https://www.instagram.com/unifyboss.software/#" href="https://www.instagram.com/unifyboss.software/#" target="_blank" rel="noopener" aria-label="Instagram">
           <img class="logo" alt="Instagram logosu" src="https://cdn.simpleicons.org/instagram/E4405F" />
         </a>
       </li>
 
       <li>
-        <a class="icon youtube" href="https://www.youtube.com/@Unifyboss.software" target="_blank" rel="noopener" aria-label="YouTube">
+        <a class="icon youtube" data-qr="https://www.youtube.com/@Unifyboss.software" href="https://www.youtube.com/@Unifyboss.software" target="_blank" rel="noopener" aria-label="YouTube">
           <img class="logo" alt="YouTube logosu" src="https://cdn.simpleicons.org/youtube/FF0000" />
         </a>
       </li>
 
       <li>
-        <!-- WeChat: copy ID -->
-        <a class="icon wechat" href="#" data-copy="wxid_12ryn7sxvn8o22" aria-label="WeChat (ID kopyala)">
+        <!-- WeChat: copy ID; QR kodu ID'den üretilecek -->
+        <a class="icon wechat" data-qr="wxid_12ryn7sxvn8o22" href="#" data-copy="wxid_12ryn7sxvn8o22" aria-label="WeChat (ID kopyala)">
           <img class="logo" alt="WeChat logosu" src="https://cdn.simpleicons.org/wechat/07C160" />
         </a>
       </li>
 
       <li>
-        <a class="icon whatsapp" href="https://wa.me/905368536899" target="_blank" rel="noopener" aria-label="WhatsApp">
+        <a class="icon whatsapp" data-qr="https://wa.me/905368536899" href="https://wa.me/905368536899" target="_blank" rel="noopener" aria-label="WhatsApp">
           <img class="logo" alt="WhatsApp logosu" src="https://cdn.simpleicons.org/whatsapp/25D366" />
         </a>
       </li>
 
       <li>
-        <a class="icon qq" href="https://wpa.qq.com/msgrd?v=3&uin=3907687536&site=qq&menu=yes" target="_blank" rel="noopener" aria-label="QQ">
+        <a class="icon qq" data-qr="https://wpa.qq.com/msgrd?v=3&uin=3907687536&site=qq&menu=yes" href="https://wpa.qq.com/msgrd?v=3&uin=3907687536&site=qq&menu=yes" target="_blank" rel="noopener" aria-label="QQ">
           <img class="logo" alt="QQ logosu" src="https://cdn.simpleicons.org/qq/1296DB" />
         </a>
       </li>
     </ul>
   </main>
 
+  <!-- Liquid Cursor -->
   <div id="cursor" aria-hidden="true">
     <div class="goo">
       <div class="blob head"></div>
@@ -266,6 +364,24 @@
       <div class="blob dot"></div>
     </div>
   </div>
+
+  <!-- QR Bubble -->
+  <section id="qr-bubble" class="qr-bubble" aria-hidden="true">
+    <div class="goo-wrap">
+      <span class="blob-bg b1"></span>
+      <span class="blob-bg b2"></span>
+      <span class="blob-bg b3"></span>
+      <div class="qr-card">
+        <div class="qr-title" id="qr-title">QR</div>
+        <div class="qr-box"><img id="qr-img" alt="QR code" crossorigin="anonymous" /></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer" role="contentinfo">
+    © <span id="year"></span> <span class="brand">Unifyboss Software</span> • Tüm hakları saklıdır.
+  </footer>
 
   <!-- Toast -->
   <div id="toast" style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:rgba(0,0,0,.72);color:#fff;padding:10px 14px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:10000;">Kopyalandı</div>
@@ -284,6 +400,32 @@
 
 <script>
 (function(){
+  /* Footer year */
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  /* ======= Helpers for color ======= */
+  function parseBrandToRGB(colorStr){
+    const el = document.createElement('span');
+    el.style.color = colorStr;
+    document.body.appendChild(el);
+    const rgb = getComputedStyle(el).color; // "rgb(r, g, b)"
+    document.body.removeChild(el);
+    const m = rgb.match(/(\d+)\D+(\d+)\D+(\d+)/);
+    if(!m) return [90,169,255];
+    return [parseInt(m[1]), parseInt(m[2]), parseInt(m[3])];
+  }
+  function mixWithWhite(arr, t){
+    const [r,g,b] = arr;
+    const w = 255;
+    return [
+      Math.round(w*(1-t) + r*t),
+      Math.round(w*(1-t) + g*t),
+      Math.round(w*(1-t) + b*t),
+    ];
+  }
+  function rgbToCss(arr){ return 'rgb(' + arr[0] + ' ' + arr[1] + ' ' + arr[2] + ')'; }
+  function rgbToDash(arr){ return arr[0] + '-' + arr[1] + '-' + arr[2]; }
+
   /* ======= Grid: light paths + blinking points near cursor ======= */
   const GRID = 30;
   const INFLUENCE_RADIUS = 60;
@@ -389,9 +531,9 @@
       const influence = Math.max(0, Math.min(1, 1 - d/INFLUENCE_RADIUS));
       const pulse = Math.pow(Math.max(0, Math.sin(tsec*POINT_PULSE_SPEED + p.phase)), 2.2);
       const alpha = POINT_BASE_ALPHA + (POINT_PULSE_ALPHA * influence * pulse);
-      ctx.fillStyle = `rgba(180, 205, 255, ${alpha})`;
+      ctx.fillStyle = 'rgba(180, 205, 255, ' + alpha + ')';
       ctx.beginPath();
-      ctx.arc(p.x, p.y, {POINT_R}, 0, Math.PI*2);
+      ctx.arc(p.x, p.y, POINT_R, 0, Math.PI*2);
       ctx.fill();
     }
 
@@ -426,8 +568,8 @@
       const tailAlpha = headAlpha * 0.35;
 
       const grad = ctx.createLinearGradient(tx, ty, hx, hy);
-      grad.addColorStop(0, `hsla(${s.hue}, 90%, 58%, ${tailAlpha})`);
-      grad.addColorStop(1, `hsla(${s.hue}, 90%, 62%, ${headAlpha})`);
+      grad.addColorStop(0, 'hsla(' + s.hue + ', 90%, 58%, ' + tailAlpha + ')');
+      grad.addColorStop(1, 'hsla(' + s.hue + ', 90%, 62%, ' + headAlpha + ')');
       ctx.strokeStyle = grad;
       ctx.lineWidth = s.thick;
       ctx.lineCap = 'round';
@@ -488,11 +630,10 @@
       kx = lerp(kx, hx - 10, easeTail); ky = lerp(ky, hy + 10, easeTail);
       dx = lerp(dx, hx + 6, easeDot);   dy = lerp(dy, hy - 6, easeDot);
 
-      goo.style.transform = `translate3d(${hx}px, ${hy}px, 0) translate3d(-50%, -50%, 0)`;
-      head.style.transform = `translate(-50%, -50%) scale(${headScale})`;
-      tail.style.transform = `translate(-50%, -50%) translate(${kx - hx}px, ${ky - hy}px)`;
-      dot .style.transform = `translate(-50%, -50%) translate(${dx - hx}px, ${dy - hy}px)`;
-
+      goo.style.transform = 'translate3d(' + hx + 'px,' + hy + 'px,0) translate3d(-50%,-50%,0)';
+      head.style.transform = 'translate(-50%,-50%) scale(' + headScale + ')';
+      tail.style.transform = 'translate(-50%,-50%) translate(' + (kx - hx) + 'px,' + (ky - hy) + 'px)';
+      dot .style.transform = 'translate(-50%,-50%) translate(' + (dx - hx) + 'px,' + (dy - hy) + 'px)';
       requestAnimationFrame(raf);
     }
     requestAnimationFrame(raf);
@@ -501,7 +642,50 @@
     document.addEventListener('mouseenter', ()=> goo.style.opacity = '1');
   }
 
-  /* ======= Copy WeChat ID with toast ======= */
+  /* ======= QR bubble logic (brand-colored) ======= */
+  const bubble = document.getElementById('qr-bubble');
+  const qrImg = document.getElementById('qr-img');
+  const qrTitle = document.getElementById('qr-title');
+
+  function setBubbleBrand(color, bgCss){
+    document.documentElement.style.setProperty('--qr-brand', color);
+    if(bgCss) document.documentElement.style.setProperty('--qr-bg', bgCss);
+  }
+  function showBubble(){ bubble.classList.add('show'); }
+  function hideBubble(){ bubble.classList.remove('show'); }
+
+  let hideT = null;
+  function onEnterIcon(el){
+    if(hideT){ clearTimeout(hideT); hideT = null; }
+    const brandStr = getComputedStyle(el).getPropertyValue('--brand').trim() || '#5aa9ff';
+    const label = getComputedStyle(el).getPropertyValue('--label').replaceAll('"','').trim() || 'QR';
+    const data = el.getAttribute('data-qr') || el.getAttribute('href') || '';
+
+    const rgb = parseBrandToRGB(brandStr);
+    const bg = mixWithWhite(rgb, 0.12); // light brand for background
+
+    setBubbleBrand(brandStr, rgbToCss(bg));
+    qrTitle.textContent = label + ' • QR';
+
+    // Brand-colored QR via qrserver (modules=color, bg=bgcolor)
+    const url = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200'
+      + '&data=' + encodeURIComponent(data)
+      + '&color=' + rgbToDash(rgb)
+      + '&bgcolor=' + rgbToDash(bg);
+    qrImg.src = url;
+
+    showBubble();
+  }
+  function onLeaveIcon(){
+    hideT = setTimeout(hideBubble, 150);
+  }
+
+  document.querySelectorAll('.icon').forEach(el=>{
+    el.addEventListener('mouseenter', ()=> onEnterIcon(el));
+    el.addEventListener('mouseleave', onLeaveIcon);
+  });
+
+  /* ======= Copy WeChat ID with toast (click) ======= */
   const toast = document.getElementById('toast');
   function showToast(msg){
     toast.textContent = msg;
@@ -509,7 +693,6 @@
     clearTimeout(showToast._t);
     showToast._t = setTimeout(()=> toast.style.opacity = '0', 1400);
   }
-
   document.querySelectorAll('[data-copy]').forEach(el=>{
     el.addEventListener('click', async (e)=>{
       e.preventDefault();
